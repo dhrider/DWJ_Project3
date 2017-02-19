@@ -43,6 +43,36 @@ var Reservation = {
 var stations = Object.create(Stations);
 stations.initStations();
 
+ajaxGet("https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=50",
+    function (reponse)
+    {
+        var records = JSON.parse(reponse);
+        records["records"].forEach(function (record) {
+            var station = Object.create(Station);
+            station.initStation(
+                record["fields"]["address"],
+                record["fields"]["available_bike_stands"],
+                record["fields"]["available_bikes"],
+                record["fields"]["bike_stands"],
+                record["fields"]["name"],
+                record["fields"]["position"],
+                record["fields"]["status"]
+            );
+
+            stations.addStation(station);
+        });
+
+        for (var i=0; i < stations.station.length; i++) {
+            var LatLng = new google.maps.LatLng(stations.station[i].position[0], stations.station[i].position[1]);
+            var marker = new google.maps.Marker({
+                position: LatLng
+            });
+
+            marker.setMap(map);
+        }
+    }
+);
+
 
 //////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
 
@@ -53,36 +83,6 @@ function initMap()
         center: {lat: 48.862725, lng: 2.287592000000018},
         zoom: 11
     });
-
-    ajaxGet("https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=50",
-        function (reponse)
-        {
-            var records = JSON.parse(reponse);
-            records["records"].forEach(function (record) {
-                var station = Object.create(Station);
-                station.initStation(
-                    record["fields"]["address"],
-                    record["fields"]["available_bike_stands"],
-                    record["fields"]["available_bikes"],
-                    record["fields"]["bike_stands"],
-                    record["fields"]["name"],
-                    record["fields"]["position"],
-                    record["fields"]["status"]
-                );
-
-                stations.addStation(station);
-            });
-
-            for (var i=0; i < stations.station.length; i++) {
-                var LatLng = new google.maps.LatLng(stations.station[i].position[0], stations.station[i].position[1]);
-                var marker = new google.maps.Marker({
-                    position: LatLng
-                });
-
-                marker.setMap(map);
-            }
-        }
-    );
 }
 
 // Exécute un appel AJAX GET
