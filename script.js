@@ -1,12 +1,11 @@
 //////////////////////////////////////////////// VARIABLES //////////////////////////////////////////////////
 
 var map;
-var indexStation;
 
 //////////////////////////////////////////////// OBJECTS //////////////////////////////////////////////////
 
 var Station = {
-    initStation: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status) {
+    initStation: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status, marker) {
         this.address = address;
         this.availableBikeStands = availableBikeStands;
         this.availableBikes = availableBikes;
@@ -18,61 +17,51 @@ var Station = {
         else
             this.status = false;
         this.reservation = false;
+        this.marker = marker;
     }
 };
 
 var Stations = {
     initStations: function () {
-        indexStation = 0;
         this.station = [];
+
+    },
+
+    recupStations : function() {
+        ajaxGet("https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=50",
+            function (reponse) {
+                var records = JSON.parse(reponse);
+                records["records"].forEach(function (record) {
+                    var station = Object.create(Station);
+                    var latLng = {lat: record["fields"]["position"][0], lng: record["fields"]["position"][1]};
+                    var marker = new google.maps.Marker({
+                       position: latLng
+                    });
+                    station.initStation(
+                        record["fields"]["address"],
+                        record["fields"]["available_bike_stands"],
+                        record["fields"]["available_bikes"],
+                        record["fields"]["bike_stands"],
+                        record["fields"]["name"],
+                        record["fields"]["position"],
+                        record["fields"]["status"],
+                        marker
+                    );
+                    stations.addStation(station);
+                });
+            }
+        );
     },
     
     addStation: function (station) {
-        this.station[indexStation] = station;
-        indexStation += 1;
-    }
-};
-
-var Reservation = {
-    intitReservation: function () {
-        this.idStations = 0;
-        this.reservation = false;
+        this.station.push(station);
     }
 };
 
 var stations = Object.create(Stations);
 stations.initStations();
-
-ajaxGet("https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=50",
-    function (reponse)
-    {
-        var records = JSON.parse(reponse);
-        records["records"].forEach(function (record) {
-            var station = Object.create(Station);
-            station.initStation(
-                record["fields"]["address"],
-                record["fields"]["available_bike_stands"],
-                record["fields"]["available_bikes"],
-                record["fields"]["bike_stands"],
-                record["fields"]["name"],
-                record["fields"]["position"],
-                record["fields"]["status"]
-            );
-
-            stations.addStation(station);
-        });
-
-        for (var i=0; i < stations.station.length; i++) {
-            var LatLng = new google.maps.LatLng(stations.station[i].position[0], stations.station[i].position[1]);
-            var marker = new google.maps.Marker({
-                position: LatLng
-            });
-
-            marker.setMap(map);
-        }
-    }
-);
-
+stations.recupStations();
+initMap();
 
 //////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
 
@@ -83,6 +72,11 @@ function initMap()
         center: {lat: 48.862725, lng: 2.287592000000018},
         zoom: 11
     });
+}
+
+// Fonction de traitement des données JSON reçu de l'API de Paris
+function responseApiParis() {
+
 }
 
 // Exécute un appel AJAX GET
