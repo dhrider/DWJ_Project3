@@ -1,100 +1,93 @@
+
 //////////////////////////////////////////////// VARIABLES //////////////////////////////////////////////////
-
 var map;
-
-//////////////////////////////////////////////// OBJECTS //////////////////////////////////////////////////
-
+//////////////////////////////////////////////// OBJECTS ////////////////////////////////////////////////////
 var Station = {
-    initStation: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status, marker) {
+    init: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status) {
         this.address = address;
         this.availableBikeStands = availableBikeStands;
         this.availableBikes = availableBikes;
         this.bikeStands = bikeStands;
         this.name = name;
         this.position = position;
-        if (status == "OPEN")
-            this.status = true;
-        else
-            this.status = false;
-        this.reservation = false;
-        this.marker = marker;
+        this.marker = new google.maps.Marker({
+            position: {
+                lat: this.position[0],
+                lng: this.position[1]
+            },
+            map: map,
+            icon: '',
+            title: this.name
+        });
+        if (this.status == 'CLOSED') {
+            this.marker.icon = 'assets/img/closed.png';
+        }
+        else if (this.availableBike == 0) {
+            this.marker.icon = 'assets/img/full.png';
+        }
+        else if (this.availableBikeStand == 0) {
+            this.marker.icon = 'assets/img/empty.png';
+        }
+        else {
+            this.marker.icon = 'assets/img/open.png';
+        }
     }
 };
 
 var Stations = {
-    initStations: function () {
-        this.station = [];
-
+    init: function () {
+        this.stations = this.recupStations();
+        this.markers = this.createMarkers(this.stations);
     },
 
-    recupStations : function() {
-        ajaxGet("https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=50",
-            function (reponse) {
-                var records = JSON.parse(reponse);
-                records["records"].forEach(function (record) {
+    recupStations: function () {
+        array = [];
+        $.ajax({
+            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=10',
+            method: 'GET',
+            async: false,
+            success: function (data) {
+                for (var i = 0; i < data.records.length; i++)
+                {
+                    var element = data.records[i].fields;
                     var station = Object.create(Station);
-                    var latLng = {lat: record["fields"]["position"][0], lng: record["fields"]["position"][1]};
-                    var marker = new google.maps.Marker({
-                       position: latLng
-                    });
-                    station.initStation(
-                        record["fields"]["address"],
-                        record["fields"]["available_bike_stands"],
-                        record["fields"]["available_bikes"],
-                        record["fields"]["bike_stands"],
-                        record["fields"]["name"],
-                        record["fields"]["position"],
-                        record["fields"]["status"],
-                        marker
+                    station.init(
+                        element.address,
+                        element.availableBikeStands,
+                        element.availableBikes,
+                        element.bikeStands,
+                        element.name,
+                        element.position,
+                        element.status
                     );
-                    stations.addStation(station);
-                });
+                    array.push(station);
+                }
             }
-        );
+        });
+        return array;
     },
-    
-    addStation: function (station) {
-        this.station.push(station);
+
+    createMarkers: function (stations) {
+
     }
 };
 
-var stations = Object.create(Stations);
-stations.initStations();
-stations.recupStations();
 initMap();
 
 //////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
 
 // On initialise la carte sur PARIS
-function initMap()
-{
+function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 48.862725, lng: 2.287592000000018},
-        zoom: 11
-    });
-}
-
-// Fonction de traitement des données JSON reçu de l'API de Paris
-function responseApiParis() {
-
-}
-
-// Exécute un appel AJAX GET
-// Prend en paramètres l'URL cible et la fonction callback appelée en cas de succès
-function ajaxGet(url, callback)
-{
-    var req = new XMLHttpRequest();
-    req.open("GET", url);
-    req.addEventListener("load", function () {
-        if (req.status >= 200 && req.status < 400) {
-            // Appelle la fonction callback en lui passant la réponse de la requête
-            callback(req.responseText);
-        } else {
-            console.error(req.status + " " + req.statusText + " " + url);
+        center: {
+            lat: 48.862725
+            , lng: 2.287592000000018
         }
+        , zoom: 11
     });
-    req.addEventListener("error", function () {
-        console.error("Erreur réseau avec l'URL " + url);
-    });
-    req.send(null);
+    var stations = Object.create(Stations);
+    stations.init();
+    var detail = document.getElementById("station");
+    //detail.innerHTML = stations.stations[0].name;
+    console.log(stations.stations[0]);
 }
