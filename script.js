@@ -1,6 +1,7 @@
 
 //////////////////////////////////////////////// VARIABLES //////////////////////////////////////////////////
-var map;
+var map
+
 //////////////////////////////////////////////// OBJECTS ////////////////////////////////////////////////////
 var Station = {
     init: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status) {
@@ -10,6 +11,7 @@ var Station = {
         this.bikeStands = bikeStands;
         this.name = name;
         this.position = position;
+        this.status = status;
         this.marker = new google.maps.Marker({
             position: {
                 lat: this.position[0],
@@ -19,6 +21,11 @@ var Station = {
             icon: '',
             title: this.name
         });
+
+        google.maps.event.addListener(this.marker, 'click', function () {
+            affichageHTMLStation(name, address, bikeStands, availableBikes);
+        });
+
         if (this.status == 'CLOSED') {
             this.marker.icon = 'assets/img/closed.png';
         }
@@ -41,9 +48,9 @@ var Stations = {
     },
 
     recupStations: function () {
-        array = [];
+        var array = [];
         $.ajax({
-            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=10',
+            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=15',
             method: 'GET',
             async: false,
             success: function (data) {
@@ -53,9 +60,9 @@ var Stations = {
                     var station = Object.create(Station);
                     station.init(
                         element.address,
-                        element.availableBikeStands,
-                        element.availableBikes,
-                        element.bikeStands,
+                        element.available_bike_stands,
+                        element.available_bikes,
+                        element.bike_stands,
                         element.name,
                         element.position,
                         element.status
@@ -68,26 +75,46 @@ var Stations = {
     },
 
     createMarkers: function (stations) {
-
+        var array = [];
+        for (var i = 0; i < stations.length; i++) {
+            array.push(stations[i].marker);
+        }
+        return array;
     }
 };
 
-initMap();
 
 //////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
+
 
 // On initialise la carte sur PARIS
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
-            lat: 48.862725
-            , lng: 2.287592000000018
-        }
-        , zoom: 11
+            lat: 48.862725,
+            lng: 2.287592000000018
+        },
+        zoom: 12
     });
+
     var stations = Object.create(Stations);
     stations.init();
-    var detail = document.getElementById("station");
-    //detail.innerHTML = stations.stations[0].name;
-    console.log(stations.stations[0]);
+    var markerCluster = new MarkerClusterer(map, stations.markers, {
+        imagePath: 'assets/img/m'
+    });
+
+    //console.log(stations.markers);
+}
+
+function affichageHTMLStation(name, address, bike_stands, available_bikes) {
+    var detail = document.getElementById("detailStation");
+    detail.innerHTML =
+        "Nom :" + name + "\n" +
+        "Adresse : " + address + "\n" +
+        "<br/>" +
+        bike_stands + " places" + "\n" +
+        available_bikes + " vélos disponibles"
+    ;
+
+
 }
