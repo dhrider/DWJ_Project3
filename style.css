@@ -45,3 +45,7 @@ html, body {
     margin-top: 5px;
     border: 1px solid black;
 }
+
+#detailStation h3 {
+    font-size: 0.8em;
+}

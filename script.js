@@ -23,16 +23,16 @@ var Station = {
         });
 
         google.maps.event.addListener(this.marker, 'click', function () {
-            affichageHTMLStation(name, address, bikeStands, availableBikes);
+            affichageHTMLStation(name, address, bikeStands, availableBikes, availableBikeStands);
         });
 
         if (this.status == 'CLOSED') {
             this.marker.icon = 'assets/img/closed.png';
         }
-        else if (this.availableBike == 0) {
+        else if (this.availableBikes == 0) {
             this.marker.icon = 'assets/img/full.png';
         }
-        else if (this.availableBikeStand == 0) {
+        else if (this.availableBikeStands == 0) {
             this.marker.icon = 'assets/img/empty.png';
         }
         else {
@@ -50,7 +50,7 @@ var Stations = {
     recupStations: function () {
         var array = [];
         $.ajax({
-            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=15',
+            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=1500',
             method: 'GET',
             async: false,
             success: function (data) {
@@ -106,15 +106,14 @@ function initMap() {
     //console.log(stations.markers);
 }
 
-function affichageHTMLStation(name, address, bike_stands, available_bikes) {
-    var detail = document.getElementById("detailStation");
-    detail.innerHTML =
-        "Nom :" + name + "\n" +
-        "Adresse : " + address + "\n" +
-        "<br/>" +
-        bike_stands + " places" + "\n" +
-        available_bikes + " vélos disponibles"
-    ;
+function affichageHTMLStation(name, address, bike_stands, available_bikes, availableBikeStands) {
+    var adresse = document.getElementById("adresse");
+    var emplacementTotal = document.getElementById("emplacementTotal");
+    var emplacementLibre = document.getElementById("emplacementLibre");
+    var dispo = document.getElementById("dispo");
 
-
+    adresse.innerHTML = "Adresse : " + address;
+    emplacementTotal.innerHTML = "Nombre d'emplacements total : " + bike_stands + " places";
+    emplacementLibre.innerHTML = "Nombre d'emplacement(s) libre(s) : " + availableBikeStands + " place(s)";
+    dispo.innerHTML = "Nombre de vélo(s) disponible(s) : " + available_bikes +  "vélo(s)";
 }
