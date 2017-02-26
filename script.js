@@ -1,10 +1,11 @@
 
 //////////////////////////////////////////////// VARIABLES //////////////////////////////////////////////////
-var map
+var map;
+var numeroStation;
 
 //////////////////////////////////////////////// OBJECTS ////////////////////////////////////////////////////
 var Station = {
-    init: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status) {
+    init: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status,number) {
         this.address = address;
         this.availableBikeStands = availableBikeStands;
         this.availableBikes = availableBikes;
@@ -12,6 +13,7 @@ var Station = {
         this.name = name;
         this.position = position;
         this.status = status;
+        this.number = number;
         this.marker = new google.maps.Marker({
             position: {
                 lat: this.position[0],
@@ -24,6 +26,7 @@ var Station = {
 
         google.maps.event.addListener(this.marker, 'click', function () {
             affichageHTMLStation(name, address, bikeStands, availableBikes, availableBikeStands);
+            numeroStation = number;
         });
 
         if (this.status == 'CLOSED') {
@@ -50,7 +53,7 @@ var Stations = {
     recupStations: function () {
         var array = [];
         $.ajax({
-            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=1500',
+            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=15',
             method: 'GET',
             async: false,
             success: function (data) {
@@ -65,7 +68,8 @@ var Stations = {
                         element.bike_stands,
                         element.name,
                         element.position,
-                        element.status
+                        element.status,
+                        element.number
                     );
                     array.push(station);
                 }
@@ -80,6 +84,13 @@ var Stations = {
             array.push(stations[i].marker);
         }
         return array;
+    },
+
+    reserveStation: function (numero) {
+       result = this.stations.find(function (n) {
+           return n.number === numero;
+       });
+        return result;
     }
 };
 
@@ -104,16 +115,22 @@ function initMap() {
     });
 
     //console.log(stations.markers);
+    var btnReserver = document.getElementById("reserverVelo");
+    btnReserver.addEventListener('click', function () {
+        console.log(stations.reserveStation(numeroStation));
+    });
 }
 
 function affichageHTMLStation(name, address, bike_stands, available_bikes, availableBikeStands) {
+    var nom = document.getElementById('nom');
     var adresse = document.getElementById("adresse");
     var emplacementTotal = document.getElementById("emplacementTotal");
     var emplacementLibre = document.getElementById("emplacementLibre");
     var dispo = document.getElementById("dispo");
 
-    adresse.innerHTML = "Adresse : " + address;
-    emplacementTotal.innerHTML = "Nombre d'emplacements total : " + bike_stands + " places";
-    emplacementLibre.innerHTML = "Nombre d'emplacement(s) libre(s) : " + availableBikeStands + " place(s)";
-    dispo.innerHTML = "Nombre de vélo(s) disponible(s) : " + available_bikes +  "vélo(s)";
+    nom.innerHTML = name;
+    adresse.innerHTML = address;
+    emplacementTotal.innerHTML = bike_stands ;
+    emplacementLibre.innerHTML = availableBikeStands;
+    dispo.innerHTML = available_bikes;
 }
