@@ -2,14 +2,19 @@
 //////////////////////////////////////////////// VARIABLES //////////////////////////////////////////////////
 var map;
 var numeroStation;
+var markerCluster;
+var stationReservee;
+var nom = document.getElementById('nom');
+var adresse = document.getElementById("adresse");
+var emplacementLibre = document.getElementById("emplacementLibre");
+var dispo = document.getElementById("dispo");
 
 //////////////////////////////////////////////// OBJECTS ////////////////////////////////////////////////////
 var Station = {
-    init: function (address, availableBikeStands, availableBikes, bikeStands, name, position, status,number) {
+    init: function (address, availableBikeStands, availableBikes, name, position, status,number) {
         this.address = address;
         this.availableBikeStands = availableBikeStands;
         this.availableBikes = availableBikes;
-        this.bikeStands = bikeStands;
         this.name = name;
         this.position = position;
         this.status = status;
@@ -25,7 +30,7 @@ var Station = {
         });
 
         google.maps.event.addListener(this.marker, 'click', function () {
-            affichageHTMLStation(name, address, bikeStands, availableBikes, availableBikeStands);
+            affichageHTMLStation(name, address, availableBikes, availableBikeStands);
             numeroStation = number;
         });
 
@@ -65,7 +70,6 @@ var Stations = {
                         element.address,
                         element.available_bike_stands,
                         element.available_bikes,
-                        element.bike_stands,
                         element.name,
                         element.position,
                         element.status,
@@ -87,10 +91,15 @@ var Stations = {
     },
 
     reserveStation: function (numero) {
-       result = this.stations.find(function (n) {
+       stationReservee = this.stations.find(function (n) {
            return n.number === numero;
        });
-        return result;
+
+       return stationReservee;
+    },
+
+    updateStation: function (station) {
+        updateAffichageHTML(station.availableBikeStands += 1, station.availableBikes -=1);
     }
 };
 
@@ -110,27 +119,24 @@ function initMap() {
 
     var stations = Object.create(Stations);
     stations.init();
-    var markerCluster = new MarkerClusterer(map, stations.markers, {
+    markerCluster = new MarkerClusterer(map, stations.markers, {
         imagePath: 'assets/img/m'
     });
 
-    //console.log(stations.markers);
     var btnReserver = document.getElementById("reserverVelo");
     btnReserver.addEventListener('click', function () {
-        console.log(stations.reserveStation(numeroStation));
+        stations.updateStation(stations.reserveStation(numeroStation));
     });
 }
 
-function affichageHTMLStation(name, address, bike_stands, available_bikes, availableBikeStands) {
-    var nom = document.getElementById('nom');
-    var adresse = document.getElementById("adresse");
-    var emplacementTotal = document.getElementById("emplacementTotal");
-    var emplacementLibre = document.getElementById("emplacementLibre");
-    var dispo = document.getElementById("dispo");
-
+function affichageHTMLStation(name, address, availablebikes, availableBikeStands) {
     nom.innerHTML = name;
     adresse.innerHTML = address;
-    emplacementTotal.innerHTML = bike_stands ;
     emplacementLibre.innerHTML = availableBikeStands;
-    dispo.innerHTML = available_bikes;
+    dispo.innerHTML = availablebikes;
+}
+
+function updateAffichageHTML(availableBikeStands, availableBikes) {
+    emplacementLibre.innerHTML = availableBikeStands;
+    dispo.innerHTML = availableBikes;
 }
