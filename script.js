@@ -1,15 +1,21 @@
 
 //////////////////////////////////////////////// VARIABLES //////////////////////////////////////////////////
+
 var map;
 var numeroStation;
 var markerCluster;
 var stationReservee;
+var chrono;
 var nom = document.getElementById('nom');
 var adresse = document.getElementById("adresse");
 var emplacementLibre = document.getElementById("emplacementLibre");
 var dispo = document.getElementById("dispo");
+var btnReserver = document.getElementById("reserverVelo");
+var timerReservation = document.getElementById('timer');
+var canvas = document.querySelector('#canvas');
 
 //////////////////////////////////////////////// OBJECTS ////////////////////////////////////////////////////
+
 var Station = {
     init: function (address, availableBikeStands, availableBikes, name, position, status,number) {
         this.address = address;
@@ -19,6 +25,7 @@ var Station = {
         this.position = position;
         this.status = status;
         this.number = number;
+        this.reservee = false;
         this.marker = new google.maps.Marker({
             position: {
                 lat: this.position[0],
@@ -27,11 +34,6 @@ var Station = {
             map: map,
             icon: '',
             title: this.name
-        });
-
-        google.maps.event.addListener(this.marker, 'click', function () {
-            affichageHTMLStation(name, address, availableBikes, availableBikeStands);
-            numeroStation = number;
         });
 
         if (this.status == 'CLOSED') {
@@ -46,6 +48,21 @@ var Station = {
         else {
             this.marker.icon = 'assets/img/open.png';
         }
+
+        google.maps.event.addListener(this.marker, 'click', function () {
+            if (status !== 'CLOSED')
+            {
+                affichageHTMLStation(name, address, availableBikes, availableBikeStands);
+                numeroStation = number;
+                timerReservation.innerHTML = "";
+                $('button').attr('disabled', false);
+            }
+            else
+            {
+                timerReservation.innerHTML = "STATION FERMEE !";
+                $('button').attr('disabled', false);
+            }
+        });
     }
 };
 
@@ -58,7 +75,7 @@ var Stations = {
     recupStations: function () {
         var array = [];
         $.ajax({
-            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=15',
+            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=1500',
             method: 'GET',
             async: false,
             success: function (data) {
@@ -95,17 +112,58 @@ var Stations = {
            return n.number === numero;
        });
 
+       stationReservee.reservee = true;
+
        return stationReservee;
     },
 
     updateStation: function (station) {
-        updateAffichageHTML(station.availableBikeStands += 1, station.availableBikes -=1);
+        if (station.reservee)
+        {
+            if (station && station.availableBikes !== 0) {
+                updateAffichageHTML(station.availableBikeStands += 1, station.availableBikes -= 1);
+                this.setReservationTimer(station);
+            }
+            else if (station.availableBikes == 0) {
+                $('button').attr('disabled', true);
+                timerReservation.innerHTML = "AUCUN VELO DISPONIBLE - RESERVATION IMPOSSIBLE !"
+            }
+        }
+        else
+        {
+            updateAffichageHTML(station.availableBikeStands -= 1, station.availableBikes += 1);
+            station.reservee = false;
+        }
+    },
+
+    setReservationTimer : function (station) {
+        var min = 0,sec = 15,dse = 0;
+        var tmp =(min * 60 + sec) * 10 + dse;
+
+        chrono = setInterval(function (){
+            min = Math.floor(tmp/600);
+            sec = Math.floor((tmp-min*600)/10);
+            dse = tmp -((min * 60) + sec) * 10;
+            timerReservation.innerHTML ="1 VELO RESERVE A LA STATION : " + station.name + " POUR " + min + " MIN "  + sec + " S ";
+            if (tmp !== 0)
+            {
+                tmp--;
+            }
+            else
+            {
+                clearInterval(chrono);
+                annulerReservation();
+                updateAffichageHTML(station.availableBikeStands -= 1, station.availableBikes += 1);
+            }
+            },
+            100
+        );
     }
 };
 
 
-//////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
 
+//////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
 
 // On initialise la carte sur PARIS
 function initMap() {
@@ -119,14 +177,25 @@ function initMap() {
 
     var stations = Object.create(Stations);
     stations.init();
+
     markerCluster = new MarkerClusterer(map, stations.markers, {
         imagePath: 'assets/img/m'
     });
 
-    var btnReserver = document.getElementById("reserverVelo");
     btnReserver.addEventListener('click', function () {
         stations.updateStation(stations.reserveStation(numeroStation));
+        $('button').attr('disabled', true);
     });
+
+    nom.innerHTML = " ";
+    adresse.innerHTML = " ";
+    emplacementLibre.innerHTML = " ";
+    dispo.innerHTML = " ";
+    timerReservation.innerHTML = " ";
+
+    $('button').attr('disabled', true);
+
+
 }
 
 function affichageHTMLStation(name, address, availablebikes, availableBikeStands) {
@@ -139,4 +208,10 @@ function affichageHTMLStation(name, address, availablebikes, availableBikeStands
 function updateAffichageHTML(availableBikeStands, availableBikes) {
     emplacementLibre.innerHTML = availableBikeStands;
     dispo.innerHTML = availableBikes;
+
+}
+
+function annulerReservation() {
+    $('button').attr('disabled', false);
+    timerReservation.innerHTML = "RESERVATION ANNULEE !";
 }
