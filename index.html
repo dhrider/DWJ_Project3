@@ -10,6 +10,8 @@
 
     <body>
         <div id="page">
+
+
             <div id="diaporama_container">
                 <div id="diaporama">
 
@@ -18,19 +20,36 @@
 
             <div id="map_container">
                 <div id="map"></div>
+
                 <div id="station">
-                    <h1>Détails de la station :</h1>
-                    <div id="detailStation">
-                        <h3>NOM :</h3>
-                        <p id="nom"></p>
-                        <h3>ADRESSE :</h3>
-                        <p id="adresse"></p>
-                        <h3>EMPLACEMENT(S) LIBRES(S) :</h3>
-                        <p id="emplacementLibre"></p>
-                        <h3>VELO(S) DISPONIBLE(S) :</h3>
-                        <p id="dispo"></p>
+                    <div id="details">
+                        <h1>Détails de la station :</h1>
+                        <div id="detailStation">
+                            <h3>NOM :</h3>
+                            <p id="nom"></p>
+                            <h3>ADRESSE :</h3>
+                            <p id="adresse"></p>
+                            <h3>EMPLACEMENT(S) LIBRES(S) :</h3>
+                            <p id="emplacementLibre"></p>
+                            <h3>VELO(S) DISPONIBLE(S) :</h3>
+                            <p id="dispo"></p>
+                        </div>
+                        <button id="reserverVelo">RESERVER VOTRE VELO</button>
                     </div>
-                    <button id="reserverVelo">RESERVER VOTRE VELO</button>
+
+                    <div id="signature">
+                        <h6>Veuillez signer pour valider :</h6>
+                        <canvas id="canvas">
+
+                        </canvas>
+
+                        <div id="detailsSignature">
+                            <button id="annuler">Annuler</button>
+                            <button id="valider">Valider</button>
+                            <button id="effacer">Effacer</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
