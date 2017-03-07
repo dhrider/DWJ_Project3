@@ -6,8 +6,6 @@ var numeroStation;
 var markerCluster;
 var stationReservee;
 var chrono;
-var lastX, lastY;
-var mousePressed = false;
 var nom = document.getElementById('nom');
 var adresse = document.getElementById("adresse");
 var emplacementLibre = document.getElementById("emplacementLibre");
@@ -16,7 +14,7 @@ var btnReserver = document.getElementById("reserverVelo");
 var btnAnnuler = document.getElementById("annuler");
 var btnEffacer = document.getElementById("effacer");
 var btnValider = document.getElementById("valider");
-var timerReservation = document.getElementById('timer');
+var timerReservation = document.getElementById('pied');
 var canvas  = document.querySelector('#canvas');
 var context = canvas.getContext('2d');
 
@@ -223,25 +221,30 @@ function initMap() {
     });
 }
 
-function affichageHTMLStation(name, address, availablebikes, availableBikeStands) {
+function affichageHTMLStation(name, address, availablebikes, availableBikeStands)
+{
     nom.innerHTML = name;
     adresse.innerHTML = address;
     emplacementLibre.innerHTML = availableBikeStands;
     dispo.innerHTML = availablebikes;
 }
 
-function updateAffichageHTML(availableBikeStands, availableBikes) {
+function updateAffichageHTML(availableBikeStands, availableBikes)
+{
     emplacementLibre.innerHTML = availableBikeStands;
     dispo.innerHTML = availableBikes;
 
 }
 
-function annulerReservation() {
+function annulerReservation()
+{
     $('#reserverVelo').attr('disabled', false);
     timerReservation.innerHTML = "RESERVATION ANNULEE !";
 }
 
-function effacerAffichageDetailsStation() {
+function effacerAffichageDetailsStation()
+
+{
     nom.innerHTML = " ";
     adresse.innerHTML = " ";
     emplacementLibre.innerHTML = " ";
@@ -254,7 +257,8 @@ function annulerSignature() {
     timerReservation.innerHTML = "";
 }
 
-function initDraw() {
+function initDraw()
+{
     clearCanvas();
 
     // Get a regular interval for drawing to the screen
@@ -380,8 +384,8 @@ function initDraw() {
     })();
 }
 
-function stringifyJsonCircularReference(station) {
-
+function stringifyJsonCircularReference(station)
+{
     var cache = [];
     JSON.stringify(station, function(key, value) {
         if (typeof value === 'object' && value !== null) {
@@ -397,3 +401,6 @@ function stringifyJsonCircularReference(station) {
     console.log(cache);
     cache = null; // Enable garbage collection
 }
+
+
+
