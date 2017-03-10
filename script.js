@@ -77,7 +77,8 @@ var Station = {
             }
             else
             {
-                console.log("reservation impossible");
+                //alert("reservation impossible");
+                alertBox();
             }
         });
     },
@@ -221,6 +222,22 @@ var Stations = {
         timerReservation.innerHTML = "STATION FERMEE !";
         $('#reserverVelo').attr('disabled', true);
         $('#signature').attr('hidden', 'hidden');
+    },
+
+    stationAfterRefresh: function(stations, reservationSaved) {
+        stationReservee = true;
+
+        var  stationEnCoursReservation= stations.trouveStation(reservationSaved.id);
+
+        stationEnCoursReservation.updateStation(1, -1);
+
+        nom.innerHTML = reservationSaved.name;
+        adresse.innerHTML = reservationSaved.address;
+        emplacementLibre.innerHTML = reservationSaved.availableBikeStands;
+        dispo.innerHTML = reservationSaved.availableBikes;
+
+        var sec = (Math.floor(Date.now() / 1000)) - reservationSaved.timeStamp;
+        stations.setReservationTimer(stationEnCoursReservation, 0, (secondes - sec));
     }
 
 };
@@ -283,10 +300,20 @@ $(document).ready(function () {
     });
 
     initMap();
+
+
 });
 
 
 //////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
+
+function alertBox() {
+    $('#alertBox').dialog({
+        modal: true,
+        height: 150,
+        width: 250
+    });
+}
 
 // On initialise la carte sur PARIS
 function initMap() {
@@ -309,19 +336,8 @@ function initMap() {
     $(document).ready(function () {
         if (localStorage.getItem('reservation') !== null)
         {
-            stationReservee = true;
             var save = JSON.parse(localStorage.getItem('reservation'));
-            var  stationEnCoursReservation= stations.trouveStation(save.id);
-
-            stationEnCoursReservation.updateStation(1, -1);
-
-            nom.innerHTML = save.name;
-            adresse.innerHTML = save.address;
-            emplacementLibre.innerHTML = save.availableBikeStands;
-            dispo.innerHTML = save.availableBikes;
-
-            var sec = (Math.floor(Date.now() / 1000)) - save.timeStamp;
-            stations.setReservationTimer(stationEnCoursReservation, 0, (secondes - sec));
+            stations.stationAfterRefresh(stations,save);
         }
         else
         {

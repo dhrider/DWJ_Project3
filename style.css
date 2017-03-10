@@ -143,3 +143,11 @@ canvas {
     width: 100%;
     height: auto;
 }
+
+#alertBox {
+    z-index: 100000;
+    border: 3px solid red;
+    background-color: #C6C6C6;
+    color: red;
+    text-align: center;
+}

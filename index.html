@@ -10,9 +10,10 @@
 
     <body>
         <div id="page">
-            <form name="refreshForm">
-                <input type="hidden" name="visited" value="" />
-            </form>
+            <div id="alertBox" style="display:none">
+                <p>Une réservation est en cours !</p>
+                <p>Vous ne pouvez pas en cumuler 2 en même temps !</p>
+            </div>
 
             <div id="diaporama_container">
                 <div id="carrousel">
@@ -72,7 +73,8 @@
 
 
         <script type="text/javascript" src="script.js"></script>
-        <script type="text/javascript" src="markerclusterer.js"></script>
+        <script type="text/javascript" src="assets/markerclusterer.js"></script>
+        <script type="text/javascript" src="assets/jquery-ui-1.12.1/jquery-ui.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdPV8lez3a62FG6JIJfTJHoldq8W3cfSU"></script>
     </body>
 
