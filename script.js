@@ -6,7 +6,8 @@ var numeroStation;
 var markerCluster;
 var stations = "";
 var reservation = "";
-//var min = 0, sec = 30;
+var minutes = 0;
+var secondes = 20;
 var timer;
 var stationReservee = false;
 var nom = document.getElementById('nom');
@@ -138,10 +139,10 @@ var Stations = {
     },
 
     reserveStation: function (station, reservation) {
-        if (station && station.availableBikes !== 0) {
+        if (station && station.availableBikes !== 0)
+        {
             stationReservee = true;
             station.updateStation(1, -1);
-
             this.setReservationTimer(station, 0, 20);
 
             reservation = Object.create(Reservation);
@@ -154,9 +155,9 @@ var Stations = {
             reservation.timeStamp = Math.floor(Date.now() / 1000);
 
             this.saveBrowser(reservation);
-
         }
-        else if (station.availableBikes == 0) {
+        else if (station.availableBikes == 0)
+        {
             $('#reserverVelo').attr('disabled', true);
             timerReservation.innerHTML = "AUCUN VELO DISPONIBLE - RESERVATION IMPOSSIBLE !"
         }
@@ -168,7 +169,9 @@ var Stations = {
         timer = setInterval(function (){
             min = Math.floor(tmp/600);
             sec = Math.floor((tmp-min*600)/10);
+
             timerReservation.innerHTML ="1 VELO RESERVE A LA STATION : " + station.name + " POUR " + min + " MIN "  + sec + " S ";
+
             if (tmp !== 0)
             {
                 tmp--;
@@ -181,9 +184,8 @@ var Stations = {
                 stationReservee = false;
                 localStorage.removeItem('reservation');
             }
-            },
-            100
-        );
+
+        },100);
     },
 
     saveBrowser: function (reservation) {
@@ -231,6 +233,7 @@ var Reservation = {
         this.availableBikeStands = 0;
         this.availableBikes = 0;
         this.timeStamp = 0;
+        this.signature = "";
     }
 };
 
@@ -248,41 +251,38 @@ $(document).ready(function () {
     $currentImg.css('display', 'block'); // on affiche seulement l'image courante
 
 
-
     $('#next').click(function(){ // image suivante
-
         i++; // on incrémente le compteur
 
-        if( i <= indexImg ){
+        if( i <= indexImg )
+        {
             $img.css('display', 'none'); // on cache les images
             $currentImg = $img.eq(i); // on définit la nouvelle image
             $currentImg.css('display', 'block'); // puis on l'affiche
 
         }
-        else{
+        else
+        {
             i = indexImg;
         }
-
     });
 
     $('#prev').click(function(){ // image précédente
-
         i--; // on décrémente le compteur, puis on réalise la même chose que pour la fonction "suivante"
 
-        if( i >= 0 ){
+        if( i >= 0 )
+        {
             $img.css('display', 'none');
             $currentImg = $img.eq(i);
             $currentImg.css('display', 'block');
         }
-        else{
+        else
+        {
             i = 0;
         }
-
     });
 
     initMap();
-
-
 });
 
 
@@ -306,32 +306,33 @@ function initMap() {
     });
 
     //localStorage.removeItem('reservation');
-    console.log(localStorage.getItem('reservation'));
+    $(document).ready(function () {
+        if (localStorage.getItem('reservation') !== null)
+        {
+            stationReservee = true;
+            var save = JSON.parse(localStorage.getItem('reservation'));
+            var  stationEnCoursReservation= stations.trouveStation(save.id);
 
-    if (localStorage.getItem('reservation') !== null)
-    {
-        stationReservee = true;
-        var save = JSON.parse(localStorage.getItem('reservation'));
-        var  stationEnCoursReservation= stations.trouveStation(save.id);
+            stationEnCoursReservation.updateStation(1, -1);
 
-        stationEnCoursReservation.updateStation(1, -1);
+            nom.innerHTML = save.name;
+            adresse.innerHTML = save.address;
+            emplacementLibre.innerHTML = save.availableBikeStands;
+            dispo.innerHTML = save.availableBikes;
 
-        nom.innerHTML = save.name;
-        adresse.innerHTML = save.address;
-        emplacementLibre.innerHTML = save.availableBikeStands;
-        dispo.innerHTML = save.availableBikes;
+            var sec = (Math.floor(Date.now() / 1000)) - save.timeStamp;
+            stations.setReservationTimer(stationEnCoursReservation, 0, (secondes - sec));
+        }
+        else
+        {
+            nom.innerHTML = " ";
+            adresse.innerHTML = " ";
+            emplacementLibre.innerHTML = " ";
+            dispo.innerHTML = " ";
+            timerReservation.innerHTML = " ";
+        }
+    });
 
-        var sec = (Math.floor(Date.now() / 1000)) - save.timeStamp;
-        stations.setReservationTimer(stationEnCoursReservation, 0, (20 - sec));
-    }
-    else
-    {
-        nom.innerHTML = " ";
-        adresse.innerHTML = " ";
-        emplacementLibre.innerHTML = " ";
-        dispo.innerHTML = " ";
-        timerReservation.innerHTML = " ";
-    }
 
     $('#reserverVelo').attr('disabled', true);
 
@@ -348,7 +349,6 @@ function initMap() {
 
     btnValider.addEventListener('click', function () {
         stations.reserveStation(stations.trouveStation(numeroStation),reservation);
-        console.log(stations.trouveStation(numeroStation));
         $('#signature').attr('hidden', 'hidden');
     });
 }
