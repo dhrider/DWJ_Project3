@@ -346,6 +346,7 @@ function initMap() {
             emplacementLibre.innerHTML = " ";
             dispo.innerHTML = " ";
             timerReservation.innerHTML = " ";
+            stationReservee = false;
         }
     });
 
