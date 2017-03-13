@@ -6,8 +6,8 @@ var numeroStation;
 var markerCluster;
 var stations = "";
 var reservation = "";
-var minutes = 0;
-var secondes = 20;
+var minutes = 19;
+var secondes = 60;
 var timer;
 var stationReservee = false;
 var nom = document.getElementById('nom');
@@ -110,7 +110,7 @@ var Stations = {
     recupStations: function () {
         var array = [];
         $.ajax({
-            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=150',
+            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=1500',
             method: 'GET',
             async: false,
             success: function (data) {
@@ -154,7 +154,7 @@ var Stations = {
         {
             stationReservee = true;
             station.updateStation(1, -1);
-            this.setReservationTimer(station, 0, 20);
+            this.setReservationTimer(station, minutes , secondes);
 
             reservation = Object.create(Reservation);
             reservation.init();
@@ -257,8 +257,15 @@ var Stations = {
         emplacementLibre.innerHTML = reservationSaved.availableBikeStands;
         dispo.innerHTML = reservationSaved.availableBikes;
 
-        var sec = (Math.floor(Date.now() / 1000)) - reservationSaved.timeStamp;
-        stations.setReservationTimer(stationEnCoursReservation, 0, (secondes - sec));
+        var timeLeft = Math.floor(Date.now() / 1000) - reservationSaved.timeStamp;
+
+        var divisor_for_minutes = timeLeft % (60 * 60);
+        var min = Math.floor(divisor_for_minutes / 60);
+
+        var divisor_for_seconds = divisor_for_minutes % 60;
+        var sec = Math.ceil(divisor_for_seconds);
+
+        stations.setReservationTimer(stationEnCoursReservation, (minutes - min), (secondes - sec));
     }
 
 };
