@@ -5,7 +5,8 @@
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="style.css">
         <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+        <script type="text/javascript" src="assets/jquery-ui-1.12.1/jquery-ui.js"></script>
+        <script type="text/javascript" src="assets/signature_pad-1.5.3/package/signature_pad.js"></script>
     </head>
 
     <body>
@@ -31,10 +32,11 @@
                     </ul>
 
                     <div class="prevNext">
-                        <button id="prev"><strong>&lt;</strong></button>
-                        <button id="next"><strong>&gt;</strong></button>
+                        <button class="btnslide" id="prev" hidden="hidden"><strong>&lt;</strong></button>
+                        <button class="btnslide" id="next"><strong>&gt;</strong></button>
                     </div>
                 </div>
+
             </div>
             <div id="legendeMap">
                 <h3>Légende des icônes de la carte</h3>
@@ -87,6 +89,7 @@
                             <button id="valider">Valider</button>
                             <button id="effacer">Effacer</button>
                         </div>
+
                     </div>
 
                 </div>
@@ -98,10 +101,10 @@
         </div>
 
 
-
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>-->
         <script type="text/javascript" src="script.js"></script>
         <script type="text/javascript" src="assets/markerclusterer.js"></script>
-        <script type="text/javascript" src="assets/jquery-ui-1.12.1/jquery-ui.js"></script>
+
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdPV8lez3a62FG6JIJfTJHoldq8W3cfSU"></script>
     </body>
 

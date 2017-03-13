@@ -267,45 +267,73 @@ $(document).ready(function () {
     $img.css('display', 'none'); // on cache les images
     $currentImg.css('display', 'block'); // on affiche seulement l'image courante
 
+    $(window).keydown(function(e){
+        switch (e.keyCode) {
+            case 37: // flèche gauche
+                prev();
+                break;
+            case 39: // flèche droite
+                next();
+                break;
+        }
+    });
 
     $('#next').click(function(){ // image suivante
-        i++; // on incrémente le compteur
+       next();
+    });
 
-        if( i <= indexImg )
+    $('#prev').click(function(){ // image précédente
+       prev();
+    });
+
+    function next() {
+        $("#prev").show();
+        i++; // on incrémente le compteur
+        if( i < indexImg && i !== 2 )
+        {
+
+            $img.css('display', 'none'); // on cache les images
+            $currentImg = $img.eq(i); // on définit la nouvelle image
+            $currentImg.css('display', 'block'); // puis on l'affiche
+        }
+        else
         {
             $img.css('display', 'none'); // on cache les images
             $currentImg = $img.eq(i); // on définit la nouvelle image
             $currentImg.css('display', 'block'); // puis on l'affiche
-
+            $("#next").hide();
+            i = indexImg
         }
-        else
-        {
-            i = indexImg;
-        }
-    });
+    }
 
-    $('#prev').click(function(){ // image précédente
+    function prev() {
         i--; // on décrémente le compteur, puis on réalise la même chose que pour la fonction "suivante"
 
-        if( i >= 0 )
+        if (i >= 0 && i !== 0)
         {
             $img.css('display', 'none');
             $currentImg = $img.eq(i);
             $currentImg.css('display', 'block');
+            $("#next").show();
         }
         else
         {
+            $img.css('display', 'none');
+            $currentImg = $img.eq(i);
+            $currentImg.css('display', 'block');
+            $("#prev").hide();
             i = 0;
         }
-    });
+    }
 
     initMap();
-
-
 });
 
 
+
 //////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
+
+
 
 function alertBox() {
     $('#alertBox').dialog({
@@ -358,6 +386,8 @@ function initMap() {
         $('#signature').removeAttr('hidden');
         timerReservation.innerHTML = " ";
         initDraw();
+        //signature();
+
     });
 
     btnAnnuler.addEventListener('click', function () {
@@ -376,14 +406,14 @@ function initDraw()
 
     // Get a regular interval for drawing to the screen
     window.requestAnimFrame = (function (callback) {
-        return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimaitonFrame ||
-            function (callback) {
-                window.setTimeout(callback, 1000/60);
-            };
+        return  window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimaitonFrame ||
+                function (callback) {
+                    window.setTimeout(callback, 1000/60);
+                };
     })();
 
     // Set up the canvas
@@ -399,13 +429,16 @@ function initDraw()
     var mousePos = { x:0, y:0 };
     var lastPos = mousePos;
 
+    // on définit
     canvas.addEventListener("mousedown", function (e) {
         drawing = true;
         lastPos = getMousePos(canvas, e);
     }, false);
+
     canvas.addEventListener("mouseup", function (e) {
         drawing = false;
     }, false);
+
     canvas.addEventListener("mousemove", function (e) {
         mousePos = getMousePos(canvas, e);
     }, false);
@@ -421,10 +454,12 @@ function initDraw()
         });
         canvas.dispatchEvent(mouseEvent);
     }, false);
+
     canvas.addEventListener("touchend", function (e) {
         var mouseEvent = new MouseEvent("mouseup", {});
         canvas.dispatchEvent(mouseEvent);
     }, false);
+
     canvas.addEventListener("touchmove", function (e) {
         var touch = e.touches[0];
         var mouseEvent = new MouseEvent("mousemove", {
@@ -454,19 +489,24 @@ function initDraw()
     // Get the position of the mouse relative to the canvas
     function getMousePos(canvasDom, mouseEvent)
     {
-        var rect = canvasDom.getBoundingClientRect();
+        var rect = canvasDom.getBoundingClientRect(), // abs. size of element
+            scaleX = canvasDom.width / rect.width,    // relationship bitmap vs. element for X
+            scaleY = canvasDom.height / rect.height;  // relationship bitmap vs. element for Y
+
         return {
-            x: mouseEvent.clientX - rect.left,
-            y: mouseEvent.clientY - rect.top
-        };
+            x: (mouseEvent.clientX - rect.left) * scaleX,   // scale mouse coordinates after they have
+            y: (mouseEvent.clientY - rect.top) * scaleY     // been adjusted to be relative to element
+        }
     }
 
     // Get the position of a touch relative to the canvas
     function getTouchPos(canvasDom, touchEvent) {
-        var rect = canvasDom.getBoundingClientRect();
+        var rect = canvasDom.getBoundingClientRect(),
+            scaleX = canvasDom.width / rect.width,    // relationship bitmap vs. element for X
+            scaleY = canvasDom.height / rect.height;  // relationship bitmap vs. element for Y
         return {
-            x: touchEvent.touches[0].clientX - rect.left,
-            y: touchEvent.touches[0].clientY - rect.top
+            x: (touchEvent.touches[0].clientX - rect.left) * scaleX,
+            y: (touchEvent.touches[0].clientY - rect.top) * scaleY
         };
     }
 
@@ -492,7 +532,3 @@ function initDraw()
         renderCanvas();
     })();
 }
-
-
-
-

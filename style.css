@@ -33,10 +33,10 @@ body {
 .prevNext{
     position: absolute;
     z-index:  1;
-    top:      45%;
+    top:      35%;
     height:   0;
     width: 100%;
-    font-size: 2em;
+    font-size: 4em;
 }
 
 
@@ -46,6 +46,12 @@ body {
 
 .prevNext #prev {
     float: left;
+}
+
+.btnslide {
+    width: 40px;
+    height: 70px;
+    font-size: 0.7em;
 }
 
 #carrousel {
@@ -61,7 +67,6 @@ body {
 }
 
 #carrousel ul {
-    height: 375px;
     margin: 0;
     padding: 0;
 }
@@ -205,4 +210,15 @@ canvas {
     background-color: #C6C6C6;
     color: red;
     text-align: center;
+}
+
+@media screen and (min-width: 1440px) {
+    #diaporama_container {
+        height: 580px;
+    }
+
+    #carrousel {
+        height: 580px;
+        overflow: visible;
+    }
 }
