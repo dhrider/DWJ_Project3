@@ -77,8 +77,18 @@ var Station = {
             }
             else
             {
-                //alert("reservation impossible");
-                alertBox();
+                //alertBox();
+                Stations.annulerReservationEnCours();
+
+                if (status !== 'CLOSED')
+                {
+                    numeroStation = number;
+                    Stations.afficheStationOuverte(name, address, availableBikeStands, availableBikes);
+                }
+                else
+                {
+                    Stations.afficheStationFermee();
+                }
             }
         });
     },
@@ -179,11 +189,12 @@ var Stations = {
             }
             else
             {
-                clearInterval(timer);
+                /*clearInterval(timer);
                 station.updateStation(-1, 1);
-                Stations.annulerReservation();
+                Stations.effacerReservation();
                 stationReservee = false;
-                localStorage.removeItem('reservation');
+                localStorage.removeItem('reservation');*/
+                Stations.annulerReservationEnCours(station);
             }
 
         },100);
@@ -193,10 +204,20 @@ var Stations = {
         localStorage.setItem('reservation', JSON.stringify(reservation));
     },
 
-    annulerReservation: function () {
+    effacerReservation: function () {
+
         $('#signature').attr('hidden', 'hidden');
         $('#reserverVelo').attr('disabled', false);
         timerReservation.innerHTML = "RESERVATION ANNULEE !";
+    },
+
+    annulerReservationEnCours: function () {
+        alertBox();
+        clearInterval(timer);
+        Station.updateStation(-1, 1);
+        Stations.effacerReservation();
+        stationReservee = false;
+        localStorage.removeItem('reservation');
     },
 
     afficheStationOuverte: function (name, address, availableBikeStands, availableBikes) {
@@ -326,6 +347,11 @@ $(document).ready(function () {
         }
     }
 
+    $('#clearStorage').click(function () {
+       localStorage.removeItem('reservation');
+    });
+
+
     initMap();
 });
 
@@ -334,11 +360,10 @@ $(document).ready(function () {
 //////////////////////////////////////////////// FUNCTIONS //////////////////////////////////////////////////
 
 
-
 function alertBox() {
     $('#alertBox').dialog({
         modal: true,
-        height: 150,
+        height: 100,
         width: 250
     });
 }
@@ -361,23 +386,20 @@ function initMap() {
     });
 
     //localStorage.removeItem('reservation');
-    $(document).ready(function () {
-        if (localStorage.getItem('reservation') !== null)
-        {
-            var save = JSON.parse(localStorage.getItem('reservation'));
-            stations.stationAfterRefresh(stations,save);
-        }
-        else
-        {
-            nom.innerHTML = " ";
-            adresse.innerHTML = " ";
-            emplacementLibre.innerHTML = " ";
-            dispo.innerHTML = " ";
-            timerReservation.innerHTML = " ";
-            stationReservee = false;
-        }
-    });
-
+    if (localStorage.getItem('reservation') !== null)
+    {
+        var save = JSON.parse(localStorage.getItem('reservation'));
+        stations.stationAfterRefresh(stations,save);
+    }
+    else
+    {
+        nom.innerHTML = " ";
+        adresse.innerHTML = " ";
+        emplacementLibre.innerHTML = " ";
+        dispo.innerHTML = " ";
+        timerReservation.innerHTML = " ";
+        stationReservee = false;
+    }
 
     $('#reserverVelo').attr('disabled', true);
 
@@ -386,12 +408,10 @@ function initMap() {
         $('#signature').removeAttr('hidden');
         timerReservation.innerHTML = " ";
         initDraw();
-        //signature();
-
     });
 
     btnAnnuler.addEventListener('click', function () {
-        stations.annulerReservation();
+        stations.effacerReservation();
     });
 
     btnValider.addEventListener('click', function () {
