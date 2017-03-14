@@ -4,15 +4,15 @@
         <title>LOCATION VELOS PARIS</title>
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
         <script type="text/javascript" src="assets/jquery-ui-1.12.1/jquery-ui.js"></script>
-        <script type="text/javascript" src="assets/signature_pad-1.5.3/package/signature_pad.js"></script>
     </head>
 
     <body>
         <div id="page">
-            <div id="alertBox" style="display:none">
-                <p><strong>La réservation en cours a été annulée !</strong></p>
+            <div id="alertBox" style="display:none" title="Annuler la réservation ?">
+                <p><span class="ui-icon ui-icon-alert"></span>Une réservation est en cours, voulez vous la supprimer ?</p>
             </div>
 
             <div id="diaporama_container">

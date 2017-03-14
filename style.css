@@ -205,11 +205,7 @@ canvas {
 }
 
 #alertBox {
-    z-index: 100000;
-    border: 3px solid red;
-    background-color: #C6C6C6;
-    color: red;
-    text-align: center;
+    z-index: 10000;
 }
 
 @media screen and (min-width: 1440px) {
