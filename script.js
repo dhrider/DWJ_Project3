@@ -6,10 +6,10 @@ var map;
 var numeroStation;
 var markerCluster;
 var timer;
-var stations = "";
-var reservation = "";
-var minutes = 19;
-var secondes = 60;
+var stations;
+var reservation;
+var minutes = 0;
+var secondes = 10;
 var stationReservee = false;
 var fistImage = false;
 var lastImage = false;
@@ -171,7 +171,7 @@ var Stations = {
     },
 
     // fonction de réservation de la station
-    reserveStation: function (station, reservation) {
+    reserveStation: function (station) {
         // on vérifie qu'on pass bien une station en argument et qu'il y a au moins UN vélo dispo
         if (station && station.availableBikes !== 0)
         {
@@ -187,15 +187,14 @@ var Stations = {
 
             // on crée l'objet Réservation et on l'init
             reservation = Object.create(Reservation);
-            reservation.init();
-
-            // on l'hydrate
-            reservation.id = numeroStation;
-            reservation.name = station.name;
-            reservation.address = station.address;
-            reservation.availableBikeStands = station.availableBikeStands;
-            reservation.availableBikes = station.availableBikes;
-            reservation.timeStamp = Math.floor(Date.now() / 1000); // on récupère le timestamp de la réservation
+            reservation.init(
+                numeroStation,
+                station.name,
+                station.address,
+                station.availableBikeStands,
+                station.availableBikes,
+                Math.floor(Date.now() / 1000)
+            );
 
             // on lance la sauvegarde de la réservation => localstorage
             this.saveBrowser(reservation);
@@ -228,8 +227,8 @@ var Stations = {
     },
 
     // fonction de sauvagarde en local de la réservation
-    saveBrowser: function (reservation) {
-        localStorage.setItem('reservation', JSON.stringify(reservation));
+    saveBrowser: function (reserv) {
+        localStorage.setItem('reservation', JSON.stringify(reserv));
     },
 
     // fonction d'effacement de l'affichage de la réservation lorsque l'on clique sur le bouton "annuler" après avoir choisi une station
@@ -240,13 +239,13 @@ var Stations = {
     },
 
     // fonction d'annulation de la réservation en cours
-    annulerReservationEnCours: function (numeroStation) {
+    annulerReservationEnCours: function () {
         clearInterval(timer); // on efface le timer en cours
-        var stationAnnulee = stations.trouveStation(numeroStation);
+        var stationAnnulee = stations.trouveStation(reservation.id);
         stationAnnulee.updateStation(-1, 1); // on update la station en cours (-1 stand, +1 vélo)
         stationAnnulee.marker.setAnimation(null);
-        Stations.effacerReservation(); // on lance l'effacement au niveau affichage
-        stationReservee = false; // on repasse notre variable de réservation à false
+        stations.effacerReservation(); // on lance l'effacement au niveau affichage
+        stationReservee = false; // on repasse notre variable de réservation à false*/
         localStorage.removeItem('reservation'); // on supprime la sauvegarde locale
         localStorage.removeItem('markerLat');
         localStorage.removeItem('markerLng');
@@ -287,15 +286,17 @@ var Stations = {
     // fonction de gestion de la réservation après rafraichissement de la page
     stationAfterRefresh: function(stations, reservationSaved) {
         stationReservee = true;
-        numeroStation = reservationSaved.id;
 
-        var stationEnCours = stations.trouveStation(numeroStation);
+        reservation = Object.create(Reservation);
+        reservation.restoreAfterRefresh(reservationSaved.id);
+
+        var stationEnCours = stations.trouveStation(reservation.id);
 
         stationEnCours.updateStation(1, -1);
 
         stationEnCours.marker.setAnimation(google.maps.Animation.BOUNCE);
+
         map.setCenter(new google.maps.LatLng(localStorage.getItem('markerLat'),localStorage.getItem('markerLng')));
-        //map.setZoom(16);
         map.setZoom(parseInt(localStorage.getItem('mapZoom')));
 
         nom.innerHTML = reservationSaved.name;
@@ -323,7 +324,7 @@ var Stations = {
             width: 250,
             buttons: {
                 "OUI": function () {
-                    Stations.annulerReservationEnCours(numeroStation);
+                    Stations.annulerReservationEnCours();
                     $(this).dialog("close");
                 },
                 "NON": function () {
@@ -336,14 +337,17 @@ var Stations = {
 };
 
 var Reservation = {
-    init: function () {
-        this.id = 0;
-        this.name = "";
-        this.address = "";
-        this.availableBikeStands = 0;
-        this.availableBikes = 0;
-        this.timeStamp = 0;
-        this.signature = "";
+    init: function (id, name, address, availableBikeStands, availableBikes, timeStamp) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        this.availableBikeStands = availableBikeStands;
+        this.availableBikes = availableBikes;
+        this.timeStamp = timeStamp;
+    },
+
+    restoreAfterRefresh: function (id) {
+        this.id = id;
     }
 };
 
@@ -480,7 +484,7 @@ function initMap() {
     });
 
     btnValider.addEventListener('click', function () {
-        stations.reserveStation(stations.trouveStation(numeroStation),reservation);
+        stations.reserveStation(stations.trouveStation(numeroStation));
         $('#signature').attr('hidden', 'hidden');
     });
 }
