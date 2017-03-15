@@ -5,12 +5,14 @@
 var map;
 var numeroStation;
 var markerCluster;
+var timer;
 var stations = "";
 var reservation = "";
 var minutes = 19;
 var secondes = 60;
-var timer;
 var stationReservee = false;
+var fistImage = false;
+var lastImage = false;
 
 // variables des éléments d'affichage //
 var nom = document.getElementById('nom');
@@ -177,6 +179,12 @@ var Stations = {
             station.updateStation(1, -1); // on lance l'update de la station (ici +1 stand , -1 vélo)
             this.setReservationTimer(station, minutes , secondes);// on lance le timer
 
+            station.marker.setAnimation(google.maps.Animation.BOUNCE);
+
+            localStorage.setItem('markerLat', station.marker.position.lat());
+            localStorage.setItem('markerLng', station.marker.position.lng());
+            localStorage.setItem('mapZoom', map.getZoom());
+
             // on crée l'objet Réservation et on l'init
             reservation = Object.create(Reservation);
             reservation.init();
@@ -192,12 +200,6 @@ var Stations = {
             // on lance la sauvegarde de la réservation => localstorage
             this.saveBrowser(reservation);
         }
-        /*else if (station.availableBikes == 0) // s'il n'y a pas de vélo dispo
-        {
-            // on rend le bouton de réservation inactif
-            $('#reserverVelo').attr('disabled', true);
-            timerReservation.innerHTML = "AUCUN VELO DISPONIBLE - RESERVATION IMPOSSIBLE !"
-        }*/
     },
 
     // fonction de gestion du timer
@@ -212,7 +214,7 @@ var Stations = {
             timerReservation.innerHTML ="1 VELO RESERVE A LA STATION : " + station.name + " POUR " + min + " MIN "  + sec + " S ";
 
             // tant que le timer n'est pas à zéro
-            if (tmp !== 0)
+            if (tmp > 0)
             {
                 tmp--; // on décrémente
             }
@@ -240,10 +242,15 @@ var Stations = {
     // fonction d'annulation de la réservation en cours
     annulerReservationEnCours: function (numeroStation) {
         clearInterval(timer); // on efface le timer en cours
-        stations.trouveStation(numeroStation).updateStation(-1, 1); // on update la station en cours (-1 stand, +1 vélo)
+        var stationAnnulee = stations.trouveStation(numeroStation);
+        stationAnnulee.updateStation(-1, 1); // on update la station en cours (-1 stand, +1 vélo)
+        stationAnnulee.marker.setAnimation(null);
         Stations.effacerReservation(); // on lance l'effacement au niveau affichage
         stationReservee = false; // on repasse notre variable de réservation à false
         localStorage.removeItem('reservation'); // on supprime la sauvegarde locale
+        localStorage.removeItem('markerLat');
+        localStorage.removeItem('markerLng');
+        localStorage.removeItem('mapZoom');
     },
 
     // fonction des gestion de l'affichage d'une station "ouverte"
@@ -285,6 +292,11 @@ var Stations = {
         var stationEnCours = stations.trouveStation(numeroStation);
 
         stationEnCours.updateStation(1, -1);
+
+        stationEnCours.marker.setAnimation(google.maps.Animation.BOUNCE);
+        map.setCenter(new google.maps.LatLng(localStorage.getItem('markerLat'),localStorage.getItem('markerLng')));
+        //map.setZoom(16);
+        map.setZoom(parseInt(localStorage.getItem('mapZoom')));
 
         nom.innerHTML = reservationSaved.name;
         adresse.innerHTML = reservationSaved.address;
@@ -351,10 +363,12 @@ $(document).ready(function () {
     $(window).keydown(function(e){
         switch (e.keyCode) {
             case 37: // flèche gauche
-                prev();
+                if (!fistImage)
+                    prev();
                 break;
             case 39: // flèche droite
-                next();
+                if (!lastImage)
+                    next();
                 break;
         }
     });
@@ -373,12 +387,14 @@ $(document).ready(function () {
         if( i < indexImg && i !== 2 )
         {
             afficheImage(i);
+            fistImage = false;
         }
         else
         {
             afficheImage(i);
             $("#next").hide();
-            i = indexImg
+            i = indexImg;
+            lastImage =true;
         }
     }
 
@@ -389,12 +405,14 @@ $(document).ready(function () {
         {
             afficheImage(i);
             $("#next").show();
+            lastImage = false;
         }
         else
         {
             afficheImage(i);
             $("#prev").hide();
             i = 0;
+            fistImage = true;
         }
     }
 
@@ -407,6 +425,7 @@ $(document).ready(function () {
     $('#clearStorage').click(function () {
        localStorage.removeItem('reservation');
     });
+    
 
 
     initMap();
@@ -433,7 +452,6 @@ function initMap() {
         imagePath: 'assets/img/m'
     });
 
-    //localStorage.removeItem('reservation');
     if (localStorage.getItem('reservation') !== null)
     {
         var save = JSON.parse(localStorage.getItem('reservation'));
@@ -454,7 +472,6 @@ function initMap() {
     btnReserver.addEventListener('click', function () {
         $('#reserverVelo').attr('disabled', true);
         $('#signature').removeAttr('hidden');
-        //timerReservation.innerHTML = " ";
         initDraw();
     });
 
