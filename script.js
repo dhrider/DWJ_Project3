@@ -74,6 +74,9 @@ var Station = {
 
         // on définit un Listener sur le click du marker de la station
         google.maps.event.addListener(this.marker, 'click', function () {
+
+            //map.setCenter(new google.maps.LatLng(position[0],position[1]));
+
             if(!stationReservee) // s'il n'y a pas de station réservée
             {
                 // et que la station est "ouverte" alors
@@ -177,7 +180,7 @@ var Stations = {
         {
             stationReservee = true; // on passe la variable de réservation à true => elle nous servira plus tard
             station.updateStation(1, -1); // on lance l'update de la station (ici +1 stand , -1 vélo)
-            this.setReservationTimer(station, minutes , secondes);// on lance le timer
+            this.setReservationTimer(station, minutes, secondes);// on lance le timer
 
             station.marker.setAnimation(google.maps.Animation.BOUNCE);
 
@@ -332,6 +335,10 @@ var Stations = {
                 }
             }
         });
+    },
+    
+    centerReservedStation: function () {
+
     }
 
 };

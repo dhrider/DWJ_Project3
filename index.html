@@ -3,6 +3,7 @@
     <head>
         <title>LOCATION VELOS PARIS</title>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width" />
         <link rel="stylesheet" type="text/css" href="style.css">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
@@ -37,27 +38,29 @@
                 </div>
 
             </div>
+
             <div id="legendeMap">
                 <h3>Légende des icônes</h3>
                 <ul>
                     <li>
-                        <div><img src="assets/img/open.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/open.png"></div>
                         <div><p>STATION OUVERTE</p></div>
                     </li>
                     <li>
-                        <div><img src="assets/img/closed.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/closed.png"></div>
                         <div><p>STATION FERMEE</p></div>
                     </li>
                     <li>
-                        <div><img src="assets/img/full.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/full.png"></div>
                         <div><p>AUCUN VELO DISPONIBLE</p></div>
                     </li>
                     <li>
-                        <div><img src="assets/img/empty.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/empty.png"></div>
                         <div><p>AUCUN EMPLACEMENT LIBRE</p></div>
                     </li>
                 </ul>
             </div>
+
             <div id="map_container">
                 <div id="map"></div>
 
@@ -79,27 +82,20 @@
 
                     <div id="signature" hidden="hidden">
                         <h6>Veuillez signer pour valider</h6>
-                        <canvas id="canvas">
 
-                        </canvas>
+                        <canvas id="canvas"></canvas>
 
                         <div id="detailsSignature">
                             <button id="annuler">Annuler</button>
                             <button id="valider">Valider</button>
                             <button id="effacer">Effacer</button>
                         </div>
-
                     </div>
-
                 </div>
             </div>
 
             <div id="pied"></div>
-
-            
         </div>
-
-
 
         <script type="text/javascript" src="script.js"></script>
         <script type="text/javascript" src="assets/markerclusterer.js"></script>
