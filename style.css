@@ -1,6 +1,23 @@
-/* */
+/* ------------------ SUMMARY ------------------------ */
+/*
 
-/* Page entière */
+- Page entière :                        line 16
+- Slider :                              line 47
+- Légende de la carte :                 line 119
+- Carte + station + signature :         line 168
+- Pied de page :                        line 261
+- Media queries :                       line 278
+
+*/
+
+
+/*-----------------------------------------------------------------------*/
+
+/* PAGE ENTIERE */
+
+/*-----------------------------------------------------------------------*/
+
+
 html, body {
     width: 100%;
     height: auto;
@@ -20,11 +37,18 @@ body {
 }
 
 #alertBox {
-     z-index: 10000;
+     z-index: 1000;
  }
 
-/* diaporama */
-#diaporama_container{
+
+/*-----------------------------------------------------------------------*/
+
+/* SLIDER */
+
+/*-----------------------------------------------------------------------*/
+
+
+#diaporama_container{ /* container qui contient le caroussel d'images*/
     width: 100%;
     height: auto;
     margin-bottom: 10px;
@@ -38,7 +62,7 @@ body {
     font-size: 0.8em;
 }
 
-.prevNext{
+.prevNext{ /* Positionnement des boutons "prev/next" */
     position: absolute;
     z-index:  1;
     top:      50%;
@@ -47,22 +71,22 @@ body {
     font-size: 2em;
 }
 
-.prevNext #next {
+.prevNext #next { /* Placement du bouton "next" à droite du diaporama */
     float: right;
 }
 
-.prevNext #prev {
+.prevNext #prev { /* Placement du bouton "prev" à gauche du diaporama */
     float: left;
 }
 
-.btnslide {
+.btnslide { /* Taille des boutons "prev/next" */
     width: 10px;
     height: 20px;
     font-size: 0.35em;
 }
 
-#carrousel {
-    position: relative;
+#carrousel { /* container des images */
+    position: relative; /* placement relatif par rapport au diaporama_container */
     width: 100%;
     height: auto;
     overflow: hidden;
@@ -86,7 +110,14 @@ body {
     vertical-align: middle;
 }
 
-/* Légende de la carte */
+
+/*-----------------------------------------------------------------------*/
+
+/* LEGENDE DE LA CARTE */
+
+/*-----------------------------------------------------------------------*/
+
+
 #legendeMap {
     width: 100%;
     height: auto;
@@ -99,7 +130,7 @@ body {
 }
 
 #legendeMap ul {
-    display: flex;
+    display: flex; /* positionnement en ligne des élements de la liste <ul>*/
     margin: 0;
     padding: 0;
 }
@@ -126,7 +157,15 @@ body {
     text-align: center;
 }
 
-/* Section  Station*/
+
+/*-----------------------------------------------------------------------*/
+
+/* CARTE + STATION + SIGNATURE */
+
+/*-----------------------------------------------------------------------*/
+
+/*-----------Carte--------------*/
+
 #map_container {
     width: 100%;
     height: auto;
@@ -137,6 +176,8 @@ body {
     width: 100%;
     height: 250px;
 }
+
+/*-----------Station--------------*/
 
 #station {
     width: 100%;
@@ -166,6 +207,20 @@ body {
     font-size: 0.6em;
 }
 
+/*-------------Signature--------------*/
+
+canvas {
+    width: 80%;
+    height: auto;
+}
+
+#canvas {
+    width: 80%;
+    margin-left: 10%;
+    height: 70%;
+    background: white;
+}
+
 #signature {
     width: 100%;
     height: auto;
@@ -182,35 +237,47 @@ body {
     background-color: #C6C6C6;
 }
 
-canvas {
-    width: 80%;
-    height: auto;
-}
-
-#canvas {
-    width: 80%;
-    margin-left: 10%;
-    height: 70%;
-    background: white;
-}
-
 #detailsSignature {
     width: 100%;
     height: 20%;
     text-align: center;
 }
 
+#centrerStationReservee {
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+    text-align: center;
+}
+
+
+/*-----------------------------------------------------------------------*/
+
+/* Pied de page */
+
+/*-----------------------------------------------------------------------*/
+
+
 #pied {
     width: 100%;
     height: auto;
-    line-height: inherit;
     margin-top: 15px;
     background-color: #C6C6C6;
     text-align: center;
     font-size: 0.9em;
 }
 
+
+/*-----------------------------------------------------------------------*/
+
+/* Media Queries */
+
+/*-----------------------------------------------------------------------*/
+
+
 @media screen and (min-width: 768px) {
+    /*----Slider----*/
+
     #diaporama_container{
         height: auto;
     }
@@ -237,7 +304,8 @@ canvas {
         overflow: hidden;
     }
 
-    /* Légende de la carte */
+    /*----- Légende de la carte -----*/
+
     #legendeMap li {
         height: 100%;
     }
@@ -259,7 +327,8 @@ canvas {
         transform: scale(1);
     }
 
-    /* Section  Station*/
+    /*----- Carte + Station + Signature----- */
+
     #map_container {
         width: 100%;
         display: flex;
@@ -292,6 +361,10 @@ canvas {
         font-size: 1em;
     }
 
+    #detailStation h3 {
+        font-size: 0.8em;
+    }
+
     #signature {
         width: 80%;
         margin-top: 50px;
@@ -311,15 +384,17 @@ canvas {
         margin-left: 0;
     }
 
+    #centrerStationReservee {
+        margin-top: 50px;
+    }
+
+    /*---- Pied de page----*/
+
     #pied {
         height: 50px;
         line-height: 50px;
         margin-top: 5px;
         margin-bottom: 20px;
         background-color: #C6C6C6;
-    }
-
-    #detailStation h3 {
-        font-size: 0.8em;
     }
 }

@@ -6,7 +6,11 @@
         <meta name="viewport" content="width=device-width" />
         <link rel="stylesheet" type="text/css" href="style.css">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.0.0.min.js"
+                integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0="
+                crossorigin="anonymous">
+        </script>
+        <script src="https://code.jquery.com/mobile/1.5.0-alpha.1/jquery.mobile-1.5.0-alpha.1.js"></script>
         <script type="text/javascript" src="assets/jquery-ui-1.12.1/jquery-ui.js"></script>
     </head>
 
@@ -21,13 +25,13 @@
                 <div id="carrousel">
                     <ul>
                         <li>
-                            <img src="assets/img/dwj_project3_diapo_01.gif">
+                            <img src="assets/img/dwj_project3_diapo_01.gif" alt="image_Mode_Emploi_01">
                         </li>
                         <li>
-                            <img src="assets/img/dwj_project3_diapo_02.gif" hidden="hidden" >
+                            <img src="assets/img/dwj_project3_diapo_02.gif" alt="image_Mode_Emploi_02" hidden="hidden">
                         </li>
                         <li>
-                            <img src="assets/img/dwj_project3_diapo_03.gif" hidden="hidden" >
+                            <img src="assets/img/dwj_project3_diapo_03.gif" alt="image_Mode_Emploi_03" hidden="hidden">
                         </li>
                     </ul>
 
@@ -43,19 +47,19 @@
                 <h3>Légende des icônes</h3>
                 <ul>
                     <li>
-                        <div class="divIcone"><img class="icone" src="assets/img/open.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/open.png" alt="icone_Station_Ouverte"></div>
                         <div><p>STATION OUVERTE</p></div>
                     </li>
                     <li>
-                        <div class="divIcone"><img class="icone" src="assets/img/closed.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/closed.png" alt="icone_Station_Fermee"></div>
                         <div><p>STATION FERMEE</p></div>
                     </li>
                     <li>
-                        <div class="divIcone"><img class="icone" src="assets/img/full.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/full.png" alt="icone_Aucun_Velo_Disponible"></div>
                         <div><p>AUCUN VELO DISPONIBLE</p></div>
                     </li>
                     <li>
-                        <div class="divIcone"><img class="icone" src="assets/img/empty.png"></div>
+                        <div class="divIcone"><img class="icone" src="assets/img/empty.png" alt="icone_Aucun_Emplacement_libre"></div>
                         <div><p>AUCUN EMPLACEMENT LIBRE</p></div>
                     </li>
                 </ul>
@@ -66,7 +70,7 @@
 
                 <div id="station">
                     <div id="details">
-                        <h1 id="clearStorage">DETAIL DE LA STATION</h1>
+                        <h1>DETAIL DE LA STATION</h1>
                         <div id="detailStation">
                             <h3>NOM</h3>
                             <p id="nom"></p>
@@ -82,14 +86,17 @@
 
                     <div id="signature" hidden="hidden">
                         <h6>Veuillez signer pour valider</h6>
-
                         <canvas id="canvas"></canvas>
-
                         <div id="detailsSignature">
                             <button id="annuler">Annuler</button>
                             <button id="valider">Valider</button>
                             <button id="effacer">Effacer</button>
                         </div>
+                    </div>
+
+                    <div id="centrerStationReservee" hidden="hidden">
+                        <h5>Retrouvez votre réservation en cliquant sur le bouton ci-dessous</h5>
+                        <button id="recentrer">Recentrer sur station réservée</button>
                     </div>
                 </div>
             </div>
@@ -101,5 +108,4 @@
         <script type="text/javascript" src="assets/markerclusterer.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdPV8lez3a62FG6JIJfTJHoldq8W3cfSU"></script>
     </body>
-
 </html>
