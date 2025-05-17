@@ -4,46 +4,46 @@
 /////// variables globales ///////
 
 // Pour la carte
-var map;
-var markerCluster;
+let map;
+let markerCluster;
 
 // Pour la gestion de la réservation
-var numeroStation;
-var stations;
-var reservation;
-var stationReservee = false;
+let numeroStation;
+let stations;
+let reservation;
+let stationReservee = false;
 
 // Pour la gestion du timer de réservation
-var timer;
-var minutes = 19;
-var secondes = 60;
+let timer;
+let minutes = 19;
+let secondes = 60;
 
 // Pour la gestion du slider
-var firstImage = false;
-var lastImage = false;
+let firstImage = false;
+let lastImage = false;
 
 // variables des éléments d'affichage //
-var nom = document.getElementById('nom');
-var adresse = document.getElementById("adresse");
-var emplacementLibre = document.getElementById("emplacementLibre");
-var dispo = document.getElementById("dispo");
-var timerReservation = document.getElementById('pied');
+let nom = document.getElementById('nom');
+let adresse = document.getElementById("adresse");
+let emplacementLibre = document.getElementById("emplacementLibre");
+let dispo = document.getElementById("dispo");
+let timerReservation = document.getElementById('pied');
 
 // Variables boutons //
-var btnReserver = document.getElementById("reserverVelo");
-var btnAnnuler = document.getElementById("annuler");
-var btnEffacer = document.getElementById("effacer");
-var btnValider = document.getElementById("valider");
-var btnRecentrer = document.getElementById('recentrer');
+let btnReserver = document.getElementById("reserverVelo");
+let btnAnnuler = document.getElementById("annuler");
+let btnEffacer = document.getElementById("effacer");
+let btnValider = document.getElementById("valider");
+let btnRecentrer = document.getElementById('recentrer');
 
 // Variables du Canvas //
-var canvas  = document.querySelector('#canvas');
-var context = canvas.getContext('2d');
+let canvas  = document.querySelector('#canvas');
+let context = canvas.getContext('2d');
 
 //////////////////////////////////////////////// OBJECTS ////////////////////////////////////////////////////
 
 // Objet Station "unique"
-var Station = {
+let Station = {
     // initialisation à la création
     init: function (address, availableBikeStands, availableBikes, name, position, status, number) {
         this.address = address;
@@ -64,15 +64,15 @@ var Station = {
             title: this.name
         });
         // On définit l'îcone rattaché à la station
-        if (this.status == 'CLOSED') // si la station est fermée
+        if (this.status === 'CLOSED') // si la station est fermée
         {
             this.marker.icon = 'assets/img/closed.png';
         }
-        else if (this.availableBikes == 0) // s'il n'y a pas de vélos disponibles
+        else if (this.availableBikes === 0) // s'il n'y a pas de vélos disponibles
         {
             this.marker.icon = 'assets/img/full.png';
         }
-        else if (this.availableBikeStands == 0) // s'il n'y a pas de stands disponibles
+        else if (this.availableBikeStands === 0) // s'il n'y a pas de stands disponibles
         {
             this.marker.icon = 'assets/img/empty.png';
         }
@@ -120,7 +120,7 @@ var Station = {
 };
 
 // Objet Stations englobant toutes les stations
-var Stations = {
+let Stations = {
     // initialisation à la création
     init: function () {
         this.stations = this.recupStations();
@@ -130,28 +130,29 @@ var Stations = {
     // fonction de récupération des stations auprès de la ville de Paris
     recupStations: function () {
         // tableau qui contiendra les stations
-        var array = [];
+        let array = [];
         // requête AJAX en 'GET' sur l'API de la ville de Paris
         $.ajax({
-            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=stations-velib-disponibilites-en-temps-reel&rows=1500',
+            url: 'https://opendata.paris.fr/api/records/1.0/search/?dataset=velib-disponibilite-en-temps-reel',
             method: 'GET',
             async: false,
             success: function (data) {
                 // on boucle sur les données
-                for (var i = 0; i < data.records.length; i++)
+                console.log(data.records.length)
+                for (let i = 0; i < data.records.length; i++)
                 {
                     // variable recevant tous les champs de chaque éléments "station"
-                    var element = data.records[i].fields;
+                    let element = data.records[i].fields;
 
                     // on crée une nouvelle station
-                    var station = Object.create(Station);
+                    let station = Object.create(Station);
                     // on l'initialise avec les champs de l'élément
                     station.init(
                         element.address,
-                        element.available_bike_stands,
-                        element.available_bikes,
+                        element.numdocksavailable,
+                        element.numbikesavailable,
                         element.name,
-                        element.position,
+                        element.coordonnees_geo,
                         element.status,
                         element.number
                     );
@@ -166,8 +167,8 @@ var Stations = {
 
     // fonction de création des Markers de la carte avec les stations en argument
     createMarkers: function (stations) {
-        var array = [];
-        for (var i = 0; i < stations.length; i++) {
+        let array = [];
+        for (let i = 0; i < stations.length; i++) {
             array.push(stations[i].marker);
         }
         return array;
@@ -214,7 +215,7 @@ var Stations = {
 
     // fonction de gestion du timer
     setReservationTimer : function (station, min, sec) {
-        var tmp =(min * 60 + sec) * 10;
+        let tmp =(min * 60 + sec) * 10;
         // on crée un interval en 100ème de secondes
         timer = setInterval(function (){
             min = Math.floor(tmp/600);
@@ -259,7 +260,7 @@ var Stations = {
         clearInterval(timer); // on efface le timer en cours
 
         // on récupère la station qui est réservée avec l'id de réservation
-        var stationAnnulee = stations.trouveStation(reservation.id);
+        let stationAnnulee = stations.trouveStation(reservation.id);
         stationAnnulee.updateStation(-1, 1); // on update la station en cours (-1 stand, +1 vélo)
         stationAnnulee.marker.setAnimation(null); // on stoppe l'animation du marker
 
@@ -314,7 +315,7 @@ var Stations = {
         reservation.restoreAfterRefresh(reservationSaved.id);
 
         // on récupère la station qui a été sauvegardée
-        var stationEnCours = stations.trouveStation(reservation.id);
+        let stationEnCours = stations.trouveStation(reservation.id);
         stationEnCours.updateStation(1, -1);
         stationEnCours.marker.setAnimation(google.maps.Animation.BOUNCE);
 
@@ -332,15 +333,15 @@ var Stations = {
         dispo.innerHTML = reservationSaved.availableBikes;
 
         // On calcule le temps écoulé entre le timestamp de la réservation et celui au moment du refresh
-        var elapsedTime = Math.floor(Date.now() / 1000) - reservationSaved.timeStamp;
+        let elapsedTime = Math.floor(Date.now() / 1000) - reservationSaved.timeStamp;
 
         // on calcule les minutes écoulées
-        var divisor_for_minutes = elapsedTime % (60 * 60);
-        var min = Math.floor(divisor_for_minutes / 60);
+        let divisor_for_minutes = elapsedTime % (60 * 60);
+        let min = Math.floor(divisor_for_minutes / 60);
 
         // on calcule les secondes écoulées
-        var divisor_for_seconds = divisor_for_minutes % 60;
-        var sec = Math.ceil(divisor_for_seconds);
+        let divisor_for_seconds = divisor_for_minutes % 60;
+        let sec = Math.ceil(divisor_for_seconds);
 
         // on reset le timer avec les nouvelles minutes et secondes
         stations.setReservationTimer(stationEnCours, (minutes - min), (secondes - sec));
@@ -371,7 +372,7 @@ var Stations = {
     // fonction de re-centrage sur la station réservée
     centerReservedStation: function () {
         // on récupère la station en fonction du numéro de réservation
-        var stationEnCours = stations.trouveStation(reservation.id);
+        let stationEnCours = stations.trouveStation(reservation.id);
         // on anime le marker
         stationEnCours.marker.setAnimation(google.maps.Animation.BOUNCE);
         // on se replace et on zoom sur la station
@@ -381,7 +382,7 @@ var Stations = {
 };
 
 // Objet Réservation
-var Reservation = {
+let Reservation = {
     // initialisation
     init: function (id, name, address, availableBikeStands, availableBikes, timeStamp) {
         this.id = id;
@@ -408,7 +409,7 @@ $(document).ready(function () {
 
     /////// Variables utilisées pour la gestion du slider sur Desktop et mobile/tablette ///////
 
-    var $img = $('#carrousel img'), // on cible les images contenues dans le carrousel
+    let $img = $('#carrousel img'), // on cible les images contenues dans le carrousel
     indexImg = $img.length - 1, // on définit l'index du dernier élément
     i = 0, // on initialise un compteur
     $currentImg = $img.eq(i); // enfin, on cible l'image courante, qui possède l'index i (0 pour l'instant)
@@ -535,7 +536,7 @@ function initMap() {
     if (localStorage.getItem('reservation') !== null) // si oui
     {
         // on récupère la sauvegarde
-        var save = JSON.parse(localStorage.getItem('reservation'));
+        let save = JSON.parse(localStorage.getItem('reservation'));
         // on affiche la carte avec la station réservée
         stations.stationAfterRefresh(stations,save);
     }
@@ -608,9 +609,9 @@ function initDraw()
     /////// Gestion du mouvement de l'écriture ///////////
 
     // Variables
-    var drawing = false;
-    var mousePos = { x:0, y:0 };
-    var lastPos = mousePos;
+    let drawing = false;
+    let mousePos = { x:0, y:0 };
+    let lastPos = mousePos;
 
     // Ecriture à la souris
     // Les listeners sur le canvas
@@ -632,8 +633,8 @@ function initDraw()
     // Listeners
     canvas.addEventListener("touchstart", function (e) { // quand on touche l'écran avec le doigt
         mousePos = getTouchPos(canvas, e); // on récupère la position du doigt sur le canvas
-        var touch = e.touches[0]; // on définit "le doigt" pour gèrer son déplacement
-        var mouseEvent = new MouseEvent("mousedown", { // on simule un click de la souris en lancant l'event "mousedown"
+        let touch = e.touches[0]; // on définit "le doigt" pour gèrer son déplacement
+        let mouseEvent = new MouseEvent("mousedown", { // on simule un click de la souris en lancant l'event "mousedown"
             // on récupère les position x et y du doigt pour l'event
             clientX: touch.clientX,
             clientY: touch.clientY
@@ -643,13 +644,13 @@ function initDraw()
 
     canvas.addEventListener("touchend", function (e) { // quand on ote le doigt de l'écran
         // on simule un "mouseup" en lancant un MouseEvent qu'on dispatch sur le canvas
-        var mouseEvent = new MouseEvent("mouseup", {});
+        let mouseEvent = new MouseEvent("mouseup", {});
         canvas.dispatchEvent(mouseEvent);
     }, false);
 
     canvas.addEventListener("touchmove", function (e) { // quand on bouge le doigt sur l'écran
-        var touch = e.touches[0]; // on définit "le doigt" pour gèrer son déplacement
-        var mouseEvent = new MouseEvent("mousemove", { // on simule un "mousemove" en lancant l'event correspondant
+        let touch = e.touches[0]; // on définit "le doigt" pour gèrer son déplacement
+        let mouseEvent = new MouseEvent("mousemove", { // on simule un "mousemove" en lancant l'event correspondant
             // on récupère les position x et y du doigt pour l'event
             clientX: touch.clientX,
             clientY: touch.clientY
@@ -659,17 +660,17 @@ function initDraw()
 
     // On empèche le scrolling de la page si le doigt "sort" des limites du canvas
     document.body.addEventListener("touchstart", function (e) {
-        if (e.target == canvas){
+        if (e.target === canvas){
             e.preventDefault();
         }
     }, false);
     document.body.addEventListener("touchend", function (e) {
-        if (e.target == canvas) {
+        if (e.target === canvas) {
             e.preventDefault();
         }
     }, false);
     document.body.addEventListener("touchmove", function (e) {
-        if (e.target == canvas){
+        if (e.target === canvas){
             e.preventDefault();
         }
     }, false);
@@ -679,7 +680,7 @@ function initDraw()
     // Pour la souris
     function getMousePos(canvasDom, mouseEvent)
     {
-        var rect = canvasDom.getBoundingClientRect(), // dimension absolu du canvas
+        let rect = canvasDom.getBoundingClientRect(), // dimension absolu du canvas
             scaleX = canvasDom.width / rect.width,    // relationship bitmap vs. element for X
             scaleY = canvasDom.height / rect.height;  // relationship bitmap vs. element for Y
 
@@ -691,7 +692,7 @@ function initDraw()
 
     // Pour "un doigt"
     function getTouchPos(canvasDom, touchEvent) {
-        var rect = canvasDom.getBoundingClientRect(), // dimension absolu du canvas
+        let rect = canvasDom.getBoundingClientRect(), // dimension absolu du canvas
             scaleX = canvasDom.width / rect.width,    // relationship bitmap vs. element for X
             scaleY = canvasDom.height / rect.height;  // relationship bitmap vs. element for Y
         return {
